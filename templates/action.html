@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<ul>
+    <h1>Works log</h1>
+    {% for action in jobs %}
+    <h2>Action {{ action["id"] }}</h2>
+    <table>
+        <tr>
+            <th style="background-color:Gainsboro">Title of activity</th>
+            <th style="background-color:Gainsboro">Team leader</th>
+            <th style="background-color:Gainsboro">Duration</th>
+            <th style="background-color:Gainsboro">List of collaborators</th>
+            <th style="background-color:Gainsboro">is finished</th>
+        </tr>
+        <tr>
+            <td style="background-color:GreenYellow">{{ action["job"] }}</td>
+            <td style="background-color:GreenYellow">{{ action["team_leader"] }}</td>
+            <td style="background-color:GreenYellow">{{ action["duration"] }}</td>
+            <td style="background-color:GreenYellow">{{ action["collaborators"] }}</td>
+            {% if action["finished"] == True %}
+            <td style="background-color:Lime">finished</td>
+            {% else %}
+            <td style="background-color:Red">is not finished</td>
+            {% endif %}
+        </tr>
+    </table>
+    {% endfor %}
+</ul>
+{% endblock %}
