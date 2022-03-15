@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <ul>
+        <h1 align="center">Departments</h1>
+        {% for action in departments %}
+            <form class="jobs-form">
+                <h2 align="center">Department № {{ action["id"] }}</h2>
+                <table>
+                    <tr>
+                        <th style="background-color:Gainsboro">Title Department</th>
+                        <th style="background-color:Gainsboro">Chief</th>
+                        <th style="background-color:Gainsboro">Members</th>
+                        <th style="background-color:Gainsboro">Email</th>
+                    </tr>
+
+                    <tr>
+                        <td style="background-color:GreenYellow">{{ action["title"] }}</td>
+                        <td style="background-color:GreenYellow">{{ action["chief"] }}</td>
+                        <td style="background-color:GreenYellow">{{ action["members"] }}</td>
+                        <td style="background-color:GreenYellow">{{ action["email"] }}</td>
+                    </tr>
+                </table>
+                <br>
+                {% if (current_user.is_authenticated and current_user.id == action["chief_id"]) or current_user.id == 1 %}
+                    <div>
+                        <a style="border-right: 2px;" href="/departments/{{ action["id"] }}" class="btn btn-warning">
+                            Изменить
+                        </a>
+                        <a style="border-right: 2px;" href="/departments_delete/{{ action["id"] }}" class="btn btn-danger">
+                            Удалить
+                        </a>
+                    </div>
+                {% endif %}
+            </form>
+            <br>
+        {% endfor %}
+    </ul>
+    {% if current_user.is_authenticated %}
+        <div>
+            <a style="float: left; border: 10px;" href="add_department" class="btn btn-secondary">Добавить Департамент</a>
+            <div style="float: left; width: 20px; height: 100px;"><br></div>
+            <a style="float: left; border: 10px;" href="/" class="btn btn-secondary">К таблице работ</a>
+        </div>
+    {% endif %}
+{% endblock %}
