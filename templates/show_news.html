@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if current_user.is_authenticated %}
+        {% for post in news %}
+            <form class="news-form">
+                <h1 align="center">{{ post.title }}</h1>
+                <p>{{ post.content }}</p>
+                <p>{{ post.created_date }} - id {{ post.id }}</p>
+                {% if current_user.is_authenticated and current_user == post.user %}
+                    <div>
+                        <a style="border-right: 2px;" href="/news/{{ post.id }}" class="btn btn-warning">
+                            Изменить
+                        </a>
+                        <a style="border-right: 2px; float: right;" href="/news_delete/{{ post.id }}" class="btn btn-danger">
+                            Удалить
+                        </a>
+                    </div>
+                {% endif %}
+            </form>
+            <br>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

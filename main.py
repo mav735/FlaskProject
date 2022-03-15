@@ -1,13 +1,17 @@
-import os
 import datetime
 
-from flask_login import login_user, LoginManager, login_required, logout_user
+from flask_login import login_user, LoginManager, login_required, logout_user, current_user
+from werkzeug.exceptions import abort
 
 from data import db_session
+from data.news import News
 from data.users import User
 from data.jobs import Jobs
-from flask import Flask
+from flask import Flask, request
 from flask import render_template, redirect
+
+from forms.JobsForm import JobsForm
+from forms.NewsForm import NewsForm
 from forms.user import RegisterForm
 from forms.LoginForm import LoginForm
 
@@ -24,80 +28,164 @@ def load_user(user_id):
 
 
 def main():
-    try:
-        os.remove('db/mars_explorer.db')
-    except FileNotFoundError:
-        pass
-
     db_session.global_init("db/mars_explorer.db")
-
-    user0 = User()
-    user0.surname = 'Scott'
-    user0.name = 'Ridley'
-    user0.age = 21
-    user0.position = 'captain'
-    user0.speciality = 'research engineer'
-    user0.address = 'module_1'
-    user0.email = 'scott_chief@mars.org'
-    db_sess = db_session.create_session()
-    db_sess.add(user0)
-    db_sess.commit()
-
-    user1 = User()
-    user1.surname = 'BigCat'
-    user1.name = 'Floppa'
-    user1.age = 15
-    user1.position = 'Russian Cat'
-    user1.speciality = 'war criminal'
-    user1.address = 'module_1'
-    user1.email = 'floppa@mars.org'
-    db_sess = db_session.create_session()
-    db_sess.add(user1)
-    db_sess.commit()
-
-    user2 = User()
-    user2.surname = 'Zhabkins'
-    user2.name = 'Zhaba'
-    user2.age = 1
-    user2.position = 'slave'
-    user2.speciality = 'programmer'
-    user2.address = 'boloto'
-    user2.email = 'CyberZhaba@mars.frog'
-    db_sess = db_session.create_session()
-    db_sess.add(user2)
-    db_sess.commit()
-
-    user3 = User()
-    user3.surname = 'Darkholme'
-    user3.name = 'Van'
-    user3.age = 31
-    user3.position = 'boss of the gym'
-    user3.speciality = 'dungeon master'
-    user3.address = 'gym'
-    user3.email = 'van@gachi.org'
-    db_sess = db_session.create_session()
-    db_sess.add(user3)
-    db_sess.commit()
-
-    job0 = Jobs(team_leader=1, job='deployment of residential modules 1 and 2', work_size=15,
-                collaborators='2, 3', start_date=datetime.date(2022, 1, 23), is_finished=False,
-                end_date=datetime.date(2022, 1, 24))
-    db_sess = db_session.create_session()
-    db_sess.add(job0)
-    db_sess.commit()
-
-    job1 = Jobs(team_leader=4, job='building gym', work_size=10,
-                collaborators='4', start_date=datetime.date(2022, 2, 27), is_finished=True,
-                end_date=datetime.datetime.now())
-    db_sess = db_session.create_session()
-    db_sess.add(job1)
-    db_sess.commit()
-
     app.run()
 
 
+@app.route('/all_news')
+def all_news():
+    db_sess = db_session.create_session()
+    if current_user.is_authenticated:
+        news = db_sess.query(News).filter(
+            (News.user == current_user) | (News.is_private != 1))
+    else:
+        news = db_sess.query(News).filter(News.is_private != 1)
+
+    return render_template('show_news.html', news=news)
+
+
+@app.route('/news', methods=['GET', 'POST'])
+@login_required
+def add_news():
+    form = NewsForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        news = News()
+        news.title = form.title.data
+        news.content = form.content.data
+        news.is_private = form.is_private.data
+        current_user.news.append(news)
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('news.html', title='Добавление новости',
+                           form=form)
+
+
+@app.route('/jobs/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_jobs(id):
+    form = JobsForm()
+    print(form)
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        jobs = db_sess.query(Jobs).filter(Jobs.id == id).first()
+        if jobs:
+            form.job.data = jobs.job
+            form.work_size.data = int(jobs.work_size)
+            form.is_finished.data = jobs.is_finished
+            form.collaborators.data = jobs.collaborators
+            form.team_leader.data = int(jobs.team_leader)
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        jobs = db_sess.query(Jobs).filter(Jobs.id == id).first()
+
+        if jobs:
+            jobs.job = form.job.data
+            jobs.work_size = int(form.work_size.data)
+            jobs.is_finished = form.is_finished.data
+            jobs.collaborators = form.collaborators.data
+            jobs.team_leader = int(form.team_leader.data)
+            jobs.start_date = datetime.datetime.now()
+            jobs.end_date = datetime.datetime.now()
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('add_job.html',
+                           title='Редактирование работы',
+                           form=form
+                           )
+
+
+@app.route('/jobs_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def jobs_delete(id):
+    db_sess = db_session.create_session()
+    jobs = db_sess.query(Jobs).filter(Jobs.id == id).first()
+    if jobs:
+        db_sess.delete(jobs)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
+
+@app.route('/add_job', methods=['GET', 'POST'])
+@login_required
+def add_jobs():
+    form = JobsForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        jobs = Jobs()
+        jobs.job = form.job.data
+        jobs.work_size = int(form.work_size.data)
+        jobs.is_finished = form.is_finished.data
+        jobs.collaborators = form.collaborators.data
+        jobs.team_leader = int(form.team_leader.data)
+        jobs.start_date = datetime.datetime.now()
+        jobs.end_date = datetime.datetime.now()
+        db_sess.add(jobs)
+        db_sess.commit()
+        db_sess.close()
+        return redirect('/')
+    return render_template('add_job.html', title='Добавление работы',
+                           form=form)
+
+
+@app.route('/news/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_news(id):
+    form = NewsForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        news = db_sess.query(News).filter(News.id == id,
+                                          News.user == current_user
+                                          ).first()
+        if news:
+            form.title.data = news.title
+            form.content.data = news.content
+            form.is_private.data = news.is_private
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        news = db_sess.query(News).filter(News.id == id,
+                                          News.user == current_user
+                                          ).first()
+        if news:
+            news.title = form.title.data
+            news.content = form.content.data
+            news.is_private = form.is_private.data
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('news.html',
+                           title='Редактирование новости',
+                           form=form
+                           )
+
+
+@app.route('/news_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def news_delete(id):
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).filter(News.id == id,
+                                      News.user == current_user
+                                      ).first()
+    if news:
+        db_sess.delete(news)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
+
 @app.route("/")
-def index():
+def work_log():
     db_sess = db_session.create_session()
     param = {"jobs": []}
     for el in db_sess.query(Jobs).all():
@@ -105,6 +193,7 @@ def index():
                "team_leader": db_sess.query(User).filter(
                    User.id == el.team_leader).first().surname + ' ' + db_sess.query(User).filter(
                    User.id == el.team_leader).first().name,
+               "team_leader_id": el.team_leader,
                "collaborators": el.collaborators, "finished": el.is_finished}
         if el.is_finished:
             job["duration"] = el.end_date - el.start_date
@@ -112,8 +201,7 @@ def index():
             job["duration"] = datetime.datetime.now() - el.start_date
 
         param["jobs"].append(job)
-
-    return render_template("action.html", **param)
+    return render_template("index.html", **param)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -138,6 +226,7 @@ def register():
             email=form.email.data,
             modified_date=datetime.datetime.now()
         )
+
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()

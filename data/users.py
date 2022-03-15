@@ -1,5 +1,6 @@
 import datetime
 import sqlalchemy
+from sqlalchemy import orm
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from .db_session import SqlAlchemyBase
@@ -16,7 +17,7 @@ class User(SqlAlchemyBase, UserMixin):
     position = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     speciality = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     address = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-
+    news = orm.relation("News", back_populates='user')
     email = sqlalchemy.Column(sqlalchemy.String,
                               unique=True, nullable=True)
 

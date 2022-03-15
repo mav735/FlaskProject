@@ -1,8 +1,7 @@
+from flask_login import UserMixin
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField, SubmitField, EmailField, IntegerField
 from wtforms.validators import DataRequired
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
 
 
 class RegisterForm(FlaskForm, UserMixin):

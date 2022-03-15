@@ -8,6 +8,27 @@ form.login_form {
     padding: 10px;
 }
 
+.news-form {
+    max-width: 450px;
+    left: 10px;
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.jobs-form {
+    max-width: 650px;
+    left: 10px;
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.info-user {
+  right: 10px;
+}
+
+
 h4 {
     color: #7b917b;
     padding: 20px;

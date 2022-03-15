@@ -7,23 +7,34 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
-        <title>{{ title }}</title>
+    <title>{{ title }}</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}" />
     </head>
     <body>
-        <h1>Миссия Колонизация Марса</h1>
-        <nav>
-            {% if current_user.is_authenticated %}
-                <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
-            {% else %}
-                <p>
-                    <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
-                    <a class="btn btn-success" href="/login">Войти</a>
-                </p>
-            {% endif %}
-        </nav>
+        <hr>
+        <div style="overflow: auto;">
+            <div>
+                <div style="float: left; width: 20px; height: 50px;"><br></div>
+                <div style="float: left; width: 600px; height: 50px;"><h1>Миссия Колонизация Марса</h1></div>
+                <div style="float: right">
+                    <nav>
+                        {% if current_user.is_authenticated %}
+                            <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
+                        {% else %}
+                            <p>
+                                <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
+                                <a class="btn btn-success" href="/login">Войти</a>
+                            </p>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <div style="clear: both;"></div>
+        <hr>
+
         <!-- Begin page content -->
-        <main role="main" class="container">
+        <main style="float: left;" role="main" class="container">
                 {% block content %}{% endblock %}
         </main>
     </body>
