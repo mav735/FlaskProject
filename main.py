@@ -3,12 +3,12 @@ import datetime
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from werkzeug.exceptions import abort
 
-from data import db_session
+from data import db_session, news_api, jobs_api
 from data.departments import Department
 from data.news import News
 from data.users import User
 from data.jobs import Jobs
-from flask import Flask, request
+from flask import Flask, request, make_response, jsonify
 from flask import render_template, redirect
 
 from forms.DepartmentForm import DepartmentsForm
@@ -29,8 +29,16 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
+@app.errorhandler(404)
+def not_found(error):
+    print(error)
+    return make_response(jsonify({'error': 'Not found'}), 404)
+
+
 def main():
     db_session.global_init("db/mars_explorer.db")
+    app.register_blueprint(news_api.blueprint)
+    app.register_blueprint(jobs_api.blueprint)
     app.run()
 
 
