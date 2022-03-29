@@ -1,23 +1,24 @@
 import datetime
 
-from flask_login import login_user, LoginManager, login_required, logout_user, current_user
-from werkzeug.exceptions import abort
-
-from data import db_session, news_api, jobs_api
-from data.departments import Department
-from data.news import News
-from data.users import User
-from data.jobs import Jobs
 from flask import Flask, request, make_response, jsonify
 from flask import render_template, redirect
+from flask_login import login_user, LoginManager, login_required, logout_user, current_user
+from flask_restful import abort, Api
+from werkzeug.exceptions import abort
 
-from forms.DepartmentForm import DepartmentsForm
+from requests import get, delete, post, patch
+
+from data import db_session, news_resources
+from data.jobs import Jobs
+from data.news import News
+from data.users import User
 from forms.JobsForm import JobsForm
+from forms.LoginForm import LoginForm
 from forms.NewsForm import NewsForm
 from forms.user import RegisterForm
-from forms.LoginForm import LoginForm
 
 app = Flask(__name__)
+api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -31,14 +32,13 @@ def load_user(user_id):
 
 @app.errorhandler(404)
 def not_found(error):
-    print(error)
-    return make_response(jsonify({'error': 'Not found'}), 404)
+    return make_response(jsonify({'error': 'Not found'}), error)
 
 
 def main():
     db_session.global_init("db/mars_explorer.db")
-    app.register_blueprint(news_api.blueprint)
-    app.register_blueprint(jobs_api.blueprint)
+    api.add_resource(news_resources.NewsListResource, '/api/news')
+    api.add_resource(news_resources.NewsResource, '/api/news/<int:news_id>')
     app.run()
 
 
@@ -47,92 +47,11 @@ def all_news():
     db_sess = db_session.create_session()
     if current_user.is_authenticated:
         news = db_sess.query(News).filter(
-            (News.user == current_user) | (News.is_private != 1))
+            (News.user_id == current_user.id) | (News.is_private != 1))
     else:
-        news = db_sess.query(News).filter(News.is_private != 1)
+        news = db_sess.query(News).filter(News.is_private == 0)
 
     return render_template('show_news.html', news=news)
-
-
-@app.route('/all_departments')
-def all_departments():
-    db_sess = db_session.create_session()
-    param = {"departments": []}
-    for el in db_sess.query(Department).all():
-        department = {"id": el.id, "title": el.title,
-                      "chief": db_sess.query(User).filter(
-                          User.id == el.chief).first().surname + ' ' + db_sess.query(User).filter(
-                          User.id == el.chief).first().name,
-                      "chief_id": el.chief,
-                      "members": el.members,
-                      "email": el.email}
-
-        param["departments"].append(department)
-    return render_template('show_departments.html', **param)
-
-
-@app.route('/add_department', methods=['GET', 'POST'])
-@login_required
-def add_departments():
-    form = DepartmentsForm()
-    if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        departments = Department()
-        departments.title = form.title.data
-        departments.email = form.email.data
-        departments.chief = form.chief.data
-        departments.members = form.members.data
-        db_sess.add(departments)
-        db_sess.commit()
-        db_sess.close()
-        return redirect('/all_departments')
-    return render_template('add_department.html', title='Добавление департамента',
-                           form=form)
-
-
-@app.route('/departments/<int:id>', methods=['GET', 'POST'])
-@login_required
-def edit_departments(id):
-    form = DepartmentsForm()
-    if request.method == "GET":
-        db_sess = db_session.create_session()
-        departments = db_sess.query(Department).filter(Department.id == id).first()
-        if departments:
-            form.title.data = departments.title
-            form.chief.data = int(departments.chief)
-            form.email.data = departments.email
-            form.members.data = departments.members
-        else:
-            abort(404)
-    if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        departments = db_sess.query(Department).filter(Department.id == id).first()
-        if departments:
-            departments.title = form.title.data
-            departments.chief = int(form.chief.data)
-            departments.email = form.email.data
-            departments.members = form.members.data
-            db_sess.commit()
-            return redirect('/all_departments')
-        else:
-            abort(404)
-    return render_template('add_department.html',
-                           title='Редактирование работы',
-                           form=form
-                           )
-
-
-@app.route('/departments_delete/<int:id>', methods=['GET', 'POST'])
-@login_required
-def departments_delete(id):
-    db_sess = db_session.create_session()
-    departments = db_sess.query(Department).filter(Department.id == id).first()
-    if departments:
-        db_sess.delete(departments)
-        db_sess.commit()
-    else:
-        abort(404)
-    return redirect('/all_departments')
 
 
 @app.route('/news', methods=['GET', 'POST'])
@@ -140,17 +59,43 @@ def departments_delete(id):
 def add_news():
     form = NewsForm()
     if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        news = News()
-        news.title = form.title.data
-        news.content = form.content.data
-        news.is_private = form.is_private.data
-        current_user.news.append(news)
-        db_sess.merge(current_user)
-        db_sess.commit()
+        post('http://localhost:5000/api/news', json={
+            "title": form.title.data,
+            "content": form.content.data,
+            "is_private": form.is_private.data,
+            "user_id": current_user.id
+        }).json()
         return redirect('/')
     return render_template('news.html', title='Добавление новости',
                            form=form)
+
+
+@app.route('/news/<int:news_id>', methods=['GET'])
+@login_required
+def edit_news(news_id):
+    form = NewsForm()
+    if request.method == "GET":
+        result = get(f'http://localhost:5000/api/news/{news_id}').json()['news']
+        print(result)
+        form.title.data = result['title']
+        form.content.data = result['content']
+        form.is_private.data = result['is_private']
+    if form.validate_on_submit():
+        patch(f'http://localhost:5000/api/news/{news_id}', json={"title": form.title.data,
+                                                                 "content": form.content.data,
+                                                                 "is_private": form.is_private.data}).json()
+        return redirect('/')
+    return render_template('news.html',
+                           title='Редактирование новости',
+                           form=form
+                           )
+
+
+@app.route('/news_delete/<int:id_news>', methods=['GET', 'POST'])
+@login_required
+def news_delete(id_news):
+    delete(f'http://localhost:5000/api/news/{id_news}').json()
+    return redirect('/')
 
 
 @app.route('/jobs/<int:id>', methods=['GET', 'POST'])
@@ -224,55 +169,6 @@ def add_jobs():
         return redirect('/')
     return render_template('add_job.html', title='Добавление работы',
                            form=form)
-
-
-@app.route('/news/<int:id>', methods=['GET', 'POST'])
-@login_required
-def edit_news(id):
-    form = NewsForm()
-    if request.method == "GET":
-        db_sess = db_session.create_session()
-        news = db_sess.query(News).filter(News.id == id,
-                                          News.user == current_user
-                                          ).first()
-        if news:
-            form.title.data = news.title
-            form.content.data = news.content
-            form.is_private.data = news.is_private
-        else:
-            abort(404)
-    if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        news = db_sess.query(News).filter(News.id == id,
-                                          News.user == current_user
-                                          ).first()
-        if news:
-            news.title = form.title.data
-            news.content = form.content.data
-            news.is_private = form.is_private.data
-            db_sess.commit()
-            return redirect('/')
-        else:
-            abort(404)
-    return render_template('news.html',
-                           title='Редактирование новости',
-                           form=form
-                           )
-
-
-@app.route('/news_delete/<int:id>', methods=['GET', 'POST'])
-@login_required
-def news_delete(id):
-    db_sess = db_session.create_session()
-    news = db_sess.query(News).filter(News.id == id,
-                                      News.user == current_user
-                                      ).first()
-    if news:
-        db_sess.delete(news)
-        db_sess.commit()
-    else:
-        abort(404)
-    return redirect('/')
 
 
 @app.route("/")

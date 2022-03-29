@@ -6,7 +6,7 @@ print(put('http://localhost:5000/api/jobs/2', json={
     "job": "АбобаApi123",
     "team_leader": 1,
     "work_size": 10020
-}).json())  # normal request
+}).json())
 
 print(put('http://localhost:5000/api/jobs/999', json={
     "collaborators": "1, 2",
@@ -14,6 +14,6 @@ print(put('http://localhost:5000/api/jobs/999', json={
     "job": "АбобаApi123",
     "team_leader": 1,
     "work_size": 10020
-}).json())  # Bad id request
+}).json())
 
 print(get('http://localhost:5000/api/jobs').json())
