@@ -1,17 +1,19 @@
 import datetime
 
-from flask import Flask, request, make_response, jsonify
+from flask import Flask, request
 from flask import render_template, redirect
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from flask_restful import abort, Api
-from werkzeug.exceptions import abort
+from werkzeug.exceptions import abort, Unauthorized
 
 from requests import get, delete, post, patch
 
-from data import db_session, news_resources, users_resource, jobs_resources
+from data import db_session, news_resources, users_resource, jobs_resources, recipes_resources
 from data.jobs import Jobs
 from data.news import News
 from data.users import User
+from data.recipes import Recipes
+from forms.FinderForm import FinderForm
 from forms.JobsForm import JobsForm
 from forms.LoginForm import LoginForm
 from forms.NewsForm import NewsForm
@@ -30,9 +32,10 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
-@app.errorhandler(404)
-def not_found(error):
-    return make_response(jsonify({'error': 'Not found'}), error)
+@app.errorhandler(Unauthorized)
+def Unauthorized(error):
+    print(error)
+    return redirect("/login")
 
 
 def main():
@@ -47,6 +50,7 @@ def main():
     api.add_resource(jobs_resources.JobsListResource, '/api/v2/jobs')
     api.add_resource(jobs_resources.JobsResource, '/api/v2/jobs/<int:job_id>')
 
+    api.add_resource(recipes_resources.RecipesResource, '/api/recipe/<int:recipe_id>')
     app.run()
 
 
@@ -164,24 +168,25 @@ def add_jobs():
                            form=form)
 
 
+@app.route("/recipes", methods=('GET', 'POST'))
+@login_required
+def recipes():
+    form = FinderForm()
+    recipe = None
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        search = form.name.data[1:]
+        results = db_sess.query(Recipes).all()
+        for element in results:
+            if search in element.name:
+                recipe = element
+        return render_template("Recipes.html", form=form, recipe=recipe)
+    return render_template("Recipes.html", form=form, recipe=recipe)
+
+
 @app.route("/")
 def work_log():
-    db_sess = db_session.create_session()
-    param = {"jobs": []}
-    for el in db_sess.query(Jobs).all():
-        job = {"id": el.id, "job": el.job,
-               "team_leader": db_sess.query(User).filter(
-                   User.id == el.team_leader).first().surname + ' ' + db_sess.query(User).filter(
-                   User.id == el.team_leader).first().name,
-               "team_leader_id": el.team_leader,
-               "collaborators": el.collaborators, "finished": el.is_finished}
-        if el.is_finished:
-            job["duration"] = el.end_date - el.start_date
-        else:
-            job["duration"] = datetime.datetime.now() - el.start_date
-
-        param["jobs"].append(job)
-    return render_template("index.html", **param)
+    return render_template("index.html", current_user=current_user)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -189,25 +194,20 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            return render_template('register.html', title='Регистрация',
+            return render_template('register.html', title='Registration',
                                    form=form,
-                                   message="Пароли не совпадают")
+                                   message="Passwords")
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Регистрация',
+            return render_template('register.html', title='Registration',
                                    form=form,
                                    message="Такой пользователь уже есть")
         post('http://localhost:5000/api/v2/users', json={
-            'surname': form.surname.data,
-            'name': form.name.data,
-            'age': form.age.data,
-            'address': form.address.data,
-            'speciality': form.speciality.data,
-            'position': form.position.data,
+            'login': form.login.data,
             'email': form.email.data,
             'password': form.password.data}).json()
         return redirect('/login')
-    return render_template('register.html', title='Регистрация', form=form)
+    return render_template('Registration.html', title='Регистрация', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -218,11 +218,11 @@ def login():
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            return redirect("/")
-        return render_template('login.html',
-                               message="Неправильный логин или пароль",
+            return redirect("/recipes")
+        return render_template('Login.html',
+                               message="Incorrect login or password",
                                form=form)
-    return render_template('login.html', title='Авторизация', form=form)
+    return render_template('login.html', form=form)
 
 
 @app.route('/logout')

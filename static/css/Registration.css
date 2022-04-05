@@ -1,0 +1,14 @@
+ .u-section-1 {
+  background-image: linear-gradient(to right, black, #332929);
+}
+
+.u-section-1 .u-sheet-1 {
+  min-height: 880px;
+}
+
+.u-section-1 .u-custom-html-1 {
+  min-height: 880px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  height: auto;
+}

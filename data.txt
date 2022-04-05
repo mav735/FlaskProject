@@ -1,0 +1,7 @@
+{
+    "collaborators": "1, 2, 3",
+    "is_finished": 1,
+    "job": "АбобаApi",
+    "team_leader": 1,
+    "work_size": 10020
+}
