@@ -1,19 +1,18 @@
-from requests import get, put
+from requests import get, post, delete
 
-print(put('http://localhost:5000/api/jobs/2', json={
-    "collaborators": "1, 2",
-    "is_finished": 0,
-    "job": "АбобаApi123",
-    "team_leader": 1,
-    "work_size": 10020
-}).json())
+print(get('http://localhost:5000/api/v2/users').json())  # correct
+print(get('http://localhost:5000/api/v2/users/1').json())  # correct
+print(delete('http://localhost:5000/api/v2/users/2').json())  # bad id
 
-print(put('http://localhost:5000/api/jobs/999', json={
-    "collaborators": "1, 2",
-    "is_finished": 0,
-    "job": "АбобаApi123",
-    "team_leader": 1,
-    "work_size": 10020
-}).json())
+print(delete('http://localhost:5000/api/v2/users/200000').json())  # bad id
+print(delete('http://localhost:5000/api/v2/users/2001200').json())  # bad id
+print(get('http://localhost:5000/api/v2/users/1212121212').json())  # bad id
 
-print(get('http://localhost:5000/api/jobs').json())
+print(post('http://localhost:5000/api/v2/users',
+           json={'surname': 'bib',
+                 'name': 'bob',
+                 'age': 12,
+                 'address': 'bub',
+                 'speciality': 'mim',
+                 'position': 'nigga',
+                 'email': 'bob@mail.ru'}).json())  # correct

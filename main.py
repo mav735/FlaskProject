@@ -8,7 +8,7 @@ from werkzeug.exceptions import abort
 
 from requests import get, delete, post, patch
 
-from data import db_session, news_resources
+from data import db_session, news_resources, users_resource
 from data.jobs import Jobs
 from data.news import News
 from data.users import User
@@ -39,6 +39,9 @@ def main():
     db_session.global_init("db/mars_explorer.db")
     api.add_resource(news_resources.NewsListResource, '/api/news')
     api.add_resource(news_resources.NewsResource, '/api/news/<int:news_id>')
+
+    api.add_resource(users_resource.UsersListResource, '/api/v2/users')
+    api.add_resource(users_resource.UsersResource, '/api/v2/users/<int:user_id>')
     app.run()
 
 
@@ -70,13 +73,12 @@ def add_news():
                            form=form)
 
 
-@app.route('/news/<int:news_id>', methods=['GET'])
+@app.route('/news/<int:news_id>', methods=['GET', 'POST'])
 @login_required
 def edit_news(news_id):
     form = NewsForm()
     if request.method == "GET":
         result = get(f'http://localhost:5000/api/news/{news_id}').json()['news']
-        print(result)
         form.title.data = result['title']
         form.content.data = result['content']
         form.is_private.data = result['is_private']
@@ -204,19 +206,15 @@ def register():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Такой пользователь уже есть")
-        user = User(
-            surname=form.surname.data,
-            name=form.name.data,
-            position=form.position.data,
-            speciality=form.speciality.data,
-            address=form.address.data,
-            email=form.email.data,
-            modified_date=datetime.datetime.now()
-        )
-
-        user.set_password(form.password.data)
-        db_sess.add(user)
-        db_sess.commit()
+        post('http://localhost:5000/api/v2/users', json={
+            'surname': form.surname.data,
+            'name': form.name.data,
+            'age': form.age.data,
+            'address': form.address.data,
+            'speciality': form.speciality.data,
+            'position': form.position.data,
+            'email': form.email.data,
+            'password': form.password.data}).json()
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
