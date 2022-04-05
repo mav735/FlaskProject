@@ -8,7 +8,7 @@ from werkzeug.exceptions import abort
 
 from requests import get, delete, post, patch
 
-from data import db_session, news_resources, users_resource
+from data import db_session, news_resources, users_resource, jobs_resources
 from data.jobs import Jobs
 from data.news import News
 from data.users import User
@@ -37,11 +37,16 @@ def not_found(error):
 
 def main():
     db_session.global_init("db/mars_explorer.db")
+
     api.add_resource(news_resources.NewsListResource, '/api/news')
     api.add_resource(news_resources.NewsResource, '/api/news/<int:news_id>')
 
     api.add_resource(users_resource.UsersListResource, '/api/v2/users')
     api.add_resource(users_resource.UsersResource, '/api/v2/users/<int:user_id>')
+
+    api.add_resource(jobs_resources.JobsListResource, '/api/v2/jobs')
+    api.add_resource(jobs_resources.JobsResource, '/api/v2/jobs/<int:job_id>')
+
     app.run()
 
 
@@ -104,7 +109,6 @@ def news_delete(id_news):
 @login_required
 def edit_jobs(id):
     form = JobsForm()
-    print(form)
     if request.method == "GET":
         db_sess = db_session.create_session()
         jobs = db_sess.query(Jobs).filter(Jobs.id == id).first()
@@ -138,16 +142,10 @@ def edit_jobs(id):
                            )
 
 
-@app.route('/jobs_delete/<int:id>', methods=['GET', 'POST'])
+@app.route('/jobs_delete/<int:job_id>', methods=['GET', 'POST'])
 @login_required
-def jobs_delete(id):
-    db_sess = db_session.create_session()
-    jobs = db_sess.query(Jobs).filter(Jobs.id == id).first()
-    if jobs:
-        db_sess.delete(jobs)
-        db_sess.commit()
-    else:
-        abort(404)
+def jobs_delete(job_id):
+    delete(f'http://localhost:5000/api/v2/jobs/{job_id}').json()
     return redirect('/')
 
 
@@ -156,18 +154,11 @@ def jobs_delete(id):
 def add_jobs():
     form = JobsForm()
     if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        jobs = Jobs()
-        jobs.job = form.job.data
-        jobs.work_size = int(form.work_size.data)
-        jobs.is_finished = form.is_finished.data
-        jobs.collaborators = form.collaborators.data
-        jobs.team_leader = int(form.team_leader.data)
-        jobs.start_date = datetime.datetime.now()
-        jobs.end_date = datetime.datetime.now()
-        db_sess.add(jobs)
-        db_sess.commit()
-        db_sess.close()
+        post('http://localhost:5000/api/v2/jobs', json={'job': form.job.data,
+                                                        'work_size': int(form.work_size.data),
+                                                        'collaborators': form.collaborators.data,
+                                                        'is_finished': bool(form.is_finished.data),
+                                                        'team_leader': int(form.team_leader.data)}).json()
         return redirect('/')
     return render_template('add_job.html', title='Добавление работы',
                            form=form)

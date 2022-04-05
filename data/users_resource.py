@@ -22,7 +22,7 @@ class UsersResource(Resource):
         abort_if_user_not_found(user_id)
         session = db_session.create_session()
         users = session.query(User).get(user_id)
-        return jsonify({'news': users.to_dict(
+        return jsonify({'user': users.to_dict(
             only=('name', 'surname', 'age', 'email'))})
 
     def patch(self, users_id):
