@@ -106,9 +106,51 @@
             </div>
             <div class="u-align-left u-container-style u-tab-pane u-white u-tab-pane-2" id="tab-14b7" role="tabpanel" aria-labelledby="link-tab-14b7">
               <div class="u-container-layout u-valign-top u-container-layout-2">
-                <p class="u-text u-text-1">Sample text. Click to select the text box. Click again or double click to start editing the text. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.<br>
-                  <br>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.&nbsp;Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-                </p>
+                  <form enctype="multipart/form-data" method="post">
+                      {{ add_form.hidden_tag() }}
+                      <p>
+                          {{ add_form.name.label }}<br>
+                          {{ add_form.name(class="form-control", type="name") }}<br>
+                          {% for error in add_form.name.errors %}
+                              <p class="alert alert-danger" role="alert">
+                                  {{ error }}
+                              </p>
+                          {% endfor %}
+                      </p>
+                      <p>
+                          {{ add_form.content.label }}<br>
+                          {{ add_form.content(class="form-control", type="content") }}<br>
+                          {% for error in add_form.content.errors %}
+                              <p class="alert alert-danger" role="alert">
+                                  {{ error }}
+                              </p>
+                          {% endfor %}
+                      </p>
+                      <p>
+                          {{ add_form.products.label }}<br>
+                          {{ add_form.products(class="form-control", type="products") }}<br>
+                          {% for error in add_form.products.errors %}
+                              <p class="alert alert-danger" role="alert">
+                                  {{ error }}
+                              </p>
+                          {% endfor %}
+                      </p>
+                      <p>
+                          {{ add_form.caloric.label }}<br>
+                          {{ add_form.caloric(class="form-control", type="caloric") }}<br>
+                          {% for error in add_form.caloric.errors %}
+                              <p class="alert alert-danger" role="alert">
+                                  {{ error }}
+                              </p>
+                          {% endfor %}
+                      </p>
+                      <p>
+                        <input type="file" class="form-control-file" id="photo" name="file">
+                      </p>
+
+                      <p>
+                         {{ add_form.submit_2(class="btn btn-primary") }}</p>
+                  </form>
               </div>
             </div>
             <div class="u-container-style u-tab-pane u-white u-tab-pane-3" id="tab-2917" role="tabpanel" aria-labelledby="link-tab-2917">

@@ -17,4 +17,5 @@ class Recipes(SqlAlchemyBase, SerializerMixin):
     owner_id = sqlalchemy.Column(sqlalchemy.Integer,
                                  sqlalchemy.ForeignKey("users.id"))
     image = sqlalchemy.Column(sqlalchemy.String)
+    caloric_content = sqlalchemy.Column(sqlalchemy.Integer)
     user = orm.relation('User')

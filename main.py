@@ -1,4 +1,5 @@
 import datetime
+import os
 
 from flask import Flask, request
 from flask import render_template, redirect
@@ -7,21 +8,26 @@ from flask_restful import abort, Api
 from werkzeug.exceptions import abort, Unauthorized
 
 from requests import get, delete, post, patch
+from werkzeug.utils import secure_filename
 
 from data import db_session, news_resources, users_resource, jobs_resources, recipes_resources
 from data.jobs import Jobs
 from data.news import News
 from data.users import User
 from data.recipes import Recipes
+from data.products import Products
 from forms.FinderForm import FinderForm
 from forms.JobsForm import JobsForm
 from forms.LoginForm import LoginForm
 from forms.NewsForm import NewsForm
+from forms.AddRecipeForm import AddRecipeForm
 from forms.user import RegisterForm
 
+UPLOAD_FOLDER = '/static/img'
 app = Flask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -51,6 +57,7 @@ def main():
     api.add_resource(jobs_resources.JobsResource, '/api/v2/jobs/<int:job_id>')
 
     api.add_resource(recipes_resources.RecipesResource, '/api/recipe/<int:recipe_id>')
+    api.add_resource(recipes_resources.RecipesListResource, '/api/recipe')
     app.run()
 
 
@@ -172,16 +179,36 @@ def add_jobs():
 @login_required
 def recipes():
     form = FinderForm()
+    add_form = AddRecipeForm()
     recipe = None
-    if form.validate_on_submit():
+
+    if form.validate_on_submit() and form.submit.data:
         db_sess = db_session.create_session()
         search = form.name.data[1:]
         results = db_sess.query(Recipes).all()
         for element in results:
             if search in element.name:
                 recipe = element
-        return render_template("Recipes.html", form=form, recipe=recipe)
-    return render_template("Recipes.html", form=form, recipe=recipe)
+        return render_template("Recipes.html", form=form, add_form=add_form, recipe=recipe)
+
+    if add_form.validate_on_submit() and add_form.submit_2.data:
+        if 'file' in request.files:
+            f = request.files['file']
+            f.save(f'static/img/{f.filename}')
+
+            post('http://localhost:5000/api/recipe', json={'name': add_form.name.data,
+                                                           'content': add_form.content.data,
+                                                           'products': add_form.products.data,
+                                                           'caloric': int(add_form.caloric.data),
+                                                           'image': f'static/img/{f.filename}',
+                                                           'owner_id': int(current_user.id)}).json()
+
+        form = FinderForm()
+        add_form = AddRecipeForm()
+
+        return render_template("Recipes.html", form=form, add_form=add_form, recipe=recipe)
+
+    return render_template("Recipes.html", form=form, add_form=add_form, recipe=recipe)
 
 
 @app.route("/")
