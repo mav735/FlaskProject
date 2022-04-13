@@ -1,23 +1,34 @@
 <!DOCTYPE html>
-<html style="font-size: 16px; font color: white">
+<html style="font-size: 16px;">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
     <meta name="keywords" content="">
     <meta name="description" content="">
     <meta name="page_type" content="np-template-header-footer-from-plugin">
-    <title>Registration</title>
+    <title>Recipes</title>
       <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}" />
     <link rel="stylesheet" href="../static/css/page.css" media="screen">
-    <link rel="stylesheet" href="../static/css/Registration.css" media="screen">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/Recipes.css" media="screen">
     <script class="u-script" type="text/javascript" src="../static/js/jquery.js" defer=""></script>
     <script class="u-script" type="text/javascript" src="../static/js/all.js" defer=""></script>
     <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
 
+
+    <script type="application/ld+json">{
+		"@context": "http://schema.org",
+		"@type": "Organization",
+		"name": "Site1"
+}</script>
+    <meta name="theme-color" content="#478ac9">
+    <meta property="og:title" content="Recipes">
+    <meta property="og:description" content="">
+    <meta property="og:type" content="website">
   </head>
   <body class="u-body u-xl-mode"><header class="u-black u-clearfix u-header u-sticky u-sticky-183f u-header" id="sec-a942"><div class="u-clearfix u-sheet u-sheet-1">
         <nav class="u-menu u-menu-dropdown u-offcanvas u-menu-1">
@@ -30,7 +41,7 @@
           </div>
           <div class="u-custom-menu u-nav-container">
             <ul class="u-nav u-unstyled u-nav-1"><li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="/" style="padding: 10px 20px;">Main page</a>
-</li><li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="/recipes" style="padding: 10px 20px;">Recipes</a>
+</li><li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" style="padding: 10px 20px;">Recipes</a>
 </li>                <li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="/products" style="padding: 10px 20px;">Products</a></li>
                 <li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="/shop" style="padding: 10px 20px;">Shop list</a></li></ul>
           </div>
@@ -38,33 +49,64 @@
             <div class="u-black u-container-style u-inner-container-layout u-opacity u-opacity-95 u-sidenav">
               <div class="u-inner-container-layout u-sidenav-overflow">
                 <div class="u-menu-close"></div>
-                <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2">
-                    <li class="u-nav-item"><a class="u-button-style u-nav-link" href="/">Main page</a></li>
-                    <li class="u-nav-item"><a class="u-button-style u-nav-link">Recipes</a></li>
-                </ul>
+                <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2"><li class="u-nav-item"><a class="u-button-style u-nav-link" href="/">Main page</a>
+</li><li class="u-nav-item"><a class="u-button-style u-nav-link">Recipes</a>
+</li></ul>
               </div>
             </div>
             <div class="u-black u-menu-overlay u-opacity u-opacity-70"></div>
           </div>
-        </nav><!--shopping_cart-->
+        </nav>
       </div></header>
-    <section class="u-clearfix u-gradient u-section-1" id="sec-3cb4">
+    <section class="u-align-center u-clearfix u-gradient u-section-1" id="sec-075a">
       <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
-        <div class="u-clearfix u-custom-html u-expanded-width u-custom-html-1">
-          <form action="" method="post"> {{ form.hidden_tag() }} <p color="#ffffff"> {{ form.email.label }}<br> {{ form.email(class="form-control", type="email") }}<br> {% for error in form.email.errors %}
-            </p>
-            <p class="alert alert-danger" role="alert"> {{ error }} </p> {% endfor %} <p></p>
-            <p> {{ form.password.label }}<br> {{ form.password(class="form-control", type="password") }}<br> {% for error in form.password.errors %} 
-            </p>
-            <p class="alert alert-danger" role="alert"> {{ error }} </p> {% endfor %} <p></p>
-            <p> {{ form.password_again.label }}<br> {{ form.password_again(class="form-control", type="password") }}<br> {% for error in form.password_again.errors %} 
-            </p>
-            <p class="alert alert-danger" role="alert"> {{ error }} </p> {% endfor %} <p></p>
-            <p> {{ form.login.label }}<br> {{ form.login(class="form-control") }}<br> {% for error in form.login.errors %}
-            </p>
-            <p class="alert alert-danger" role="alert"> {{ error }} </p> {% endfor %} <p></p>
-            <p>{{ form.submit(class="btn btn-primary") }}</p> {% for field, errors in form.errors.items() %} <small class="form-text text-muted"> {{ ', '.join(errors) }} </small> {% endfor %} <input type="hidden" value="" name="recaptchaResponse">
-          </form>
+        <div class="u-expanded-width u-tab-links-align-left u-tabs u-tabs-1">
+              <form enctype="multipart/form-data" method="post">
+                  {{ form.hidden_tag() }}
+                  <p>
+                      {{ form.name.label }}<br>
+                      {{ form.name(class="form-control", type="name") }}<br>
+                      {% for error in form.name.errors %}
+                          <p class="alert alert-danger" role="alert">
+                              {{ error }}
+                          </p>
+                      {% endfor %}
+                  </p>
+                  <p>
+                      {{ form.content.label }}<br>
+                      {{ form.content(class="form-control", type="content") }}<br>
+                      {% for error in form.content.errors %}
+                          <p class="alert alert-danger" role="alert">
+                              {{ error }}
+                          </p>
+                      {% endfor %}
+                  </p>
+                  <p>
+                      {{ form.products.label }}<br>
+                      {{ form.products(class="form-control", type="products") }}<br>
+                      {% for error in form.products.errors %}
+                          <p class="alert alert-danger" role="alert">
+                              {{ error }}
+                          </p>
+                      {% endfor %}
+                  </p>
+                  <p>
+                      {{ form.caloric.label }}<br>
+                      {{ form.caloric(class="form-control", type="caloric") }}<br>
+                      {% for error in form.caloric.errors %}
+                          <p class="alert alert-danger" role="alert">
+                              {{ error }}
+                          </p>
+                      {% endfor %}
+                  </p>
+                  <p>
+                    <input type="file" class="form-control-file" id="photo" name="file">
+                  </p>
+
+                  <p>
+                     {{ form.submit_2(class="btn btn-primary") }}</p>
+              </form>
+          </div>
         </div>
       </div>
     </section>

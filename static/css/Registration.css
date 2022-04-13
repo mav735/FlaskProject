@@ -2,12 +2,14 @@
   background-image: linear-gradient(to right, black, #332929);
 }
 
+p { color: white;}
+
 .u-section-1 .u-sheet-1 {
-  min-height: 880px;
+  min-height: 1000px;
 }
 
 .u-section-1 .u-custom-html-1 {
-  min-height: 880px;
+  min-height: 1000px;
   margin-top: 8px;
   margin-bottom: 8px;
   height: auto;

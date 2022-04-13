@@ -6,7 +6,7 @@
     <meta name="keywords" content="">
     <meta name="description" content="">
     <meta name="page_type" content="np-template-header-footer-from-plugin">
-    <title>Recipes</title>
+    <title>Products</title>
       <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
@@ -26,7 +26,7 @@
 		"name": "Site1"
 }</script>
     <meta name="theme-color" content="#478ac9">
-    <meta property="og:title" content="Recipes">
+    <meta property="og:title" content="Products">
     <meta property="og:description" content="">
     <meta property="og:type" content="website">
   </head>
@@ -41,7 +41,7 @@
           </div>
           <div class="u-custom-menu u-nav-container">
             <ul class="u-nav u-unstyled u-nav-1"><li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="/" style="padding: 10px 20px;">Main page</a>
-</li><li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" style="padding: 10px 20px;">Recipes</a>
+</li><li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="/recipes" style="padding: 10px 20px;">Recipes</a>
 </li>                <li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="/products" style="padding: 10px 20px;">Products</a></li>
                 <li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="/shop" style="padding: 10px 20px;">Shop list</a></li></ul>
           </div>
@@ -49,8 +49,8 @@
             <div class="u-black u-container-style u-inner-container-layout u-opacity u-opacity-95 u-sidenav">
               <div class="u-inner-container-layout u-sidenav-overflow">
                 <div class="u-menu-close"></div>
-                <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2"><li class="u-nav-item"><a class="u-button-style u-nav-link" href="/">Main page</a>
-</li><li class="u-nav-item"><a class="u-button-style u-nav-link">Recipes</a>
+                <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2"><li class="u-nav-item"><a class="u-button-style u-nav-link" href="Main-page.html">Main page</a>
+</li><li class="u-nav-item"><a class="u-button-style u-nav-link">Products</a>
 </li></ul>
               </div>
             </div>
@@ -63,10 +63,10 @@
         <div class="u-expanded-width u-tab-links-align-left u-tabs u-tabs-1">
           <ul class="u-border-2 u-border-palette-1-base u-spacing-10 u-tab-list u-unstyled" role="tablist">
             <li class="u-tab-item" role="presentation">
-              <a class="active u-active-grey-75 u-button-style u-grey-10 u-radius-50 u-tab-link u-text-active-white u-text-black u-tab-link-1" id="link-tab-0da5" href="#tab-0da5" role="tab" aria-controls="tab-0da5" aria-selected="true">Info recipe</a>
+              <a class="active u-active-grey-75 u-button-style u-grey-10 u-radius-50 u-tab-link u-text-active-white u-text-black u-tab-link-1" id="link-tab-0da5" href="#tab-0da5" role="tab" aria-controls="tab-0da5" aria-selected="true">Info product</a>
             </li>
             <li class="u-tab-item" role="presentation">
-              <a class="u-active-grey-75 u-button-style u-grey-10 u-radius-50 u-tab-link u-text-active-white u-text-black u-tab-link-2" id="link-tab-14b7" href="#tab-14b7" role="tab" aria-controls="tab-14b7" aria-selected="false">Add recipe</a>
+              <a class="u-active-grey-75 u-button-style u-grey-10 u-radius-50 u-tab-link u-text-active-white u-text-black u-tab-link-2" id="link-tab-14b7" href="#tab-14b7" role="tab" aria-controls="tab-14b7" aria-selected="false">Add product</a>
             </li>
           </ul>
           <div class="u-tab-content">
@@ -81,81 +81,29 @@
                   </form>
                 </div>
                 <br>
-                <div>
-                  {% if recipe != None %}
+                <div class="u-clearfix u-custom-html u-expanded-width u-custom-html-2">
+                  {% if product != None %}
                     <form class="news-form">
-                      <h1 align="center">{{ recipe.name }}</h1>
+                      <h1 align="center">{{ product.name }}</h1>
                       <center>
-                      <img align="middle" src={{ recipe.image }} alt="альтернативный текст" height="300" width="450"><br>
-                      </center><br>
-                      <p align="center" font-family="‘Open Sans’, sans-serif" font-size="15px">Information: {{ recipe.content }}</p>
-                      <p align="center" font-family="‘Open Sans’, sans-serif" font-size="15px">Costs: {{ recipe.cost }} rubles</p>
-                      <p align="center" font-family="‘Open Sans’, sans-serif" font-size="15px">Products: {{ recipe.products }}</p>
-                      {% if current_user.is_authenticated and current_user == recipe.user %}
-                      <div>
-                        <a style="border-right: 2px;" href="/recipes_edit/{{ recipe.id }}" class="btn btn-warning"> Edit </a>
-                        <a style="border-right: 2px;" href="/recipes_delete/{{ recipe.id }}" class="btn btn-danger"> Delete </a>
-                      </div>
+                      <p align="center" font-family="‘Open Sans’, sans-serif" font-size="15px">Costs: {{ product.cost }} rubles</p>
+                      <p align="center" font-family="‘Open Sans’, sans-serif" font-size="15px">Product Id: {{ product.id }}</p>
+                      {% if current_user.is_authenticated %}
+                        <div>
+                          <a style="border-right: 2px;" href="/products_edit/{{ product.id }}" class="btn btn-warning"> Edit </a>
+                          <a style="border-right: 2px;" href="/products_delete/{{ product.id }}" class="btn btn-danger"> Delete </a>
+                        </div>
                       {% endif %}
-                    {% endif %}
-                  </form>
+                    </form>
+                  {% endif %}
                 </div>
               </div>
             </div>
             <div class="u-align-left u-container-style u-tab-pane u-white u-tab-pane-2" id="tab-14b7" role="tabpanel" aria-labelledby="link-tab-14b7">
               <div class="u-container-layout u-valign-top u-container-layout-2">
-                  <form enctype="multipart/form-data" method="post">
-                      {{ add_form.hidden_tag() }}
-                      <p>
-                          {{ add_form.name.label }}<br>
-                          {{ add_form.name(class="form-control", type="name") }}<br>
-                          {% for error in add_form.name.errors %}
-                              <p class="alert alert-danger" role="alert">
-                                  {{ error }}
-                              </p>
-                          {% endfor %}
-                      </p>
-                      <p>
-                          {{ add_form.content.label }}<br>
-                          {{ add_form.content(class="form-control", type="content") }}<br>
-                          {% for error in add_form.content.errors %}
-                              <p class="alert alert-danger" role="alert">
-                                  {{ error }}
-                              </p>
-                          {% endfor %}
-                      </p>
-                      <p>
-                          {{ add_form.products.label }}<br>
-                          {{ add_form.products(class="form-control", type="products") }}<br>
-                          {% for error in add_form.products.errors %}
-                              <p class="alert alert-danger" role="alert">
-                                  {{ error }}
-                              </p>
-                          {% endfor %}
-                      </p>
-                      <p>
-                          {{ add_form.caloric.label }}<br>
-                          {{ add_form.caloric(class="form-control", type="caloric") }}<br>
-                          {% for error in add_form.caloric.errors %}
-                              <p class="alert alert-danger" role="alert">
-                                  {{ error }}
-                              </p>
-                          {% endfor %}
-                      </p>
-                      <p>
-                        <input type="file" class="form-control-file" id="photo" name="file">
-                      </p>
-
-                      <p>
-                         {{ add_form.submit_2(class="btn btn-primary") }}</p>
-                  </form>
-              </div>
-            </div>
-            <div class="u-container-style u-tab-pane u-white u-tab-pane-3" id="tab-2917" role="tabpanel" aria-labelledby="link-tab-2917">
-              <div class="u-container-layout u-container-layout-3">
-                <h4 class="u-text u-text-default u-text-2">Be The First To Review This Product!</h4>
-                <p class="u-text u-text-default u-text-3">Sample text. Click to select the text box. Click again or double click to start editing the text.</p>
-                <a href="" class="u-btn u-button-style u-btn-1">write product review</a>
+                <p class="u-text u-text-1">Sample text. Click to select the text box. Click again or double click to start editing the text. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.<br>
+                  <br>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.&nbsp;Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                </p>
               </div>
             </div>
           </div>
