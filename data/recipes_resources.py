@@ -30,7 +30,6 @@ class RecipesResource(Resource):
         session = db_session.create_session()
         recipe = session.query(Recipes).get(recipe_id)
         args = self.parser.parse_args()
-        print(args)
 
         products = args['products'].split(', ')
         recipe_cost = 0
@@ -55,6 +54,17 @@ class RecipesResource(Resource):
         abort_if_recipe_not_found(recipe_id)
         session = db_session.create_session()
         recipe = session.query(Recipes).get(recipe_id)
+
+        products = recipe.products.split(', ')
+        recipe_cost = 0
+        for element in products:
+            now = session.query(Products).get(int(element))
+            if now is not None:
+                recipe_cost += now.cost
+        recipe.cost = recipe_cost
+
+        session.commit()
+
         return jsonify({'recipe': recipe.to_dict(
             only=('name', 'content', 'products', 'cost', 'owner_id', 'image', 'caloric_content'))})
 

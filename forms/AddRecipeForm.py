@@ -8,4 +8,4 @@ class AddRecipeForm(FlaskForm):
     content = StringField('Content', validators=[DataRequired()])
     products = StringField('Products', validators=[DataRequired()])
     caloric = IntegerField('Caloric Content', validators=[DataRequired()])
-    submit_2 = SubmitField('Add Recipe')
+    submit_2 = SubmitField('Submit')

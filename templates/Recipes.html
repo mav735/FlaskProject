@@ -88,9 +88,17 @@
                       <center>
                       <img align="middle" src={{ recipe.image }} alt="альтернативный текст" height="300" width="450"><br>
                       </center><br>
-                      <p align="center" font-family="‘Open Sans’, sans-serif" font-size="15px">Information: {{ recipe.content }}</p>
+                      <p align="center" font-family="‘Open Sans’, sans-serif" font-size="15px">Information:<br> {{ recipe.content }}</p>
                       <p align="center" font-family="‘Open Sans’, sans-serif" font-size="15px">Costs: {{ recipe.cost }} rubles</p>
-                      <p align="center" font-family="‘Open Sans’, sans-serif" font-size="15px">Products: {{ recipe.products }}</p>
+                      <p align="center" font-family="‘Open Sans’, sans-serif" font-size="15px">Products:<br>
+                          {% for name_prod in products_names %}
+                            {% if loop.index != len_products %}
+                                {{ name_prod }},
+                            {% else %}
+                                {{ name_prod }}.
+                            {% endif %}
+                          {% endfor %}
+                      </p>
                       {% if current_user.is_authenticated and current_user == recipe.user %}
                       <div>
                         <a style="border-right: 2px;" href="/recipes_edit/{{ recipe.id }}" class="btn btn-warning"> Edit </a>
@@ -149,13 +157,6 @@
                       <p>
                          {{ add_form.submit_2(class="btn btn-primary") }}</p>
                   </form>
-              </div>
-            </div>
-            <div class="u-container-style u-tab-pane u-white u-tab-pane-3" id="tab-2917" role="tabpanel" aria-labelledby="link-tab-2917">
-              <div class="u-container-layout u-container-layout-3">
-                <h4 class="u-text u-text-default u-text-2">Be The First To Review This Product!</h4>
-                <p class="u-text u-text-default u-text-3">Sample text. Click to select the text box. Click again or double click to start editing the text.</p>
-                <a href="" class="u-btn u-button-style u-btn-1">write product review</a>
               </div>
             </div>
           </div>

@@ -1,17 +1,9 @@
 from flask_restful import abort
 
 from data import db_session
-from data.news import News
 from data.recipes import Recipes
 from data.users import User
-from data.jobs import Jobs
-
-
-def abort_if_news_not_found(news_id):
-    session = db_session.create_session()
-    news = session.query(News).get(news_id)
-    if not news:
-        abort(404, message=f"News {news_id} not found")
+from data.products import Products
 
 
 def abort_if_user_not_found(user_id):
@@ -25,11 +17,11 @@ def abort_if_recipe_not_found(recipe_id):
     session = db_session.create_session()
     recipes = session.query(Recipes).get(recipe_id)
     if not recipes:
-        abort(404, message=f"User {recipe_id} not found")
+        abort(404, message=f"Recipe {recipe_id} not found")
 
 
-def abort_if_job_not_found(job_id):
+def abort_if_products_not_found(product_id):
     session = db_session.create_session()
-    job = session.query(Jobs).get(job_id)
-    if not job:
-        abort(404, message=f"Job {job_id} not found")
+    products = session.query(Products).get(product_id)
+    if not products:
+        abort(404, message=f"Product {product_id} not found")

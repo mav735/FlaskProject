@@ -1,14 +1,15 @@
+import pandas
 from flask import Flask, request
 from flask import render_template, redirect
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from flask_restful import Api
 from requests import delete, post, patch, get
 from werkzeug.exceptions import Unauthorized
-
-from data import db_session, users_resource, recipes_resources
+from data import db_session, users_resource, recipes_resources, products_resources
 from data.products import Products
 from data.recipes import Recipes
 from data.users import User
+from forms.AddProductForm import AddProductsForm
 from forms.AddRecipeForm import AddRecipeForm
 from forms.FinderForm import FinderForm
 from forms.LoginForm import LoginForm
@@ -21,6 +22,18 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
+def excel_products():
+    db_sess = db_session.create_session()
+    results = db_sess.query(Products).all()
+    result_dict = {'Id': [], 'Name': []}
+    for element in results:
+        result_dict['Id'].append(element.id)
+        result_dict['Name'].append(element.name)
+
+    form = pandas.DataFrame(result_dict)
+    form.to_excel('static/Products.xlsx')
 
 
 @login_manager.user_loader
@@ -43,13 +56,40 @@ def main():
 
     api.add_resource(recipes_resources.RecipesResource, '/api/recipe/<int:recipe_id>')
     api.add_resource(recipes_resources.RecipesListResource, '/api/recipe')
+
+    api.add_resource(products_resources.ProductsResource, '/api/product/<int:product_id>')
+    api.add_resource(products_resources.ProductsListResource, '/api/product')
     app.run()
+
+
+@app.route("/products_edit/<int:id_product>", methods=['GET', "POST"])
+@login_required
+def product_edit(id_product):
+    results = get(f'http://localhost:5000/api/product/{id_product}').json()['product']
+    edit_form = AddProductsForm()
+
+    if request.method == 'GET':
+        edit_form.name.data = results['name']
+        edit_form.cost.data = results['cost']
+
+    if edit_form.validate_on_submit() and edit_form.submit_2.data:
+        patch(f'http://localhost:5000/api/product/{id_product}',
+              json={'name': edit_form.name.data,
+                    'cost': edit_form.cost.data}).json()
+
+        log_writer(f'http://localhost:5000/api/product/{id_product}')
+        return redirect('/products')
+
+    return render_template("Products_edit.html", form=edit_form)
 
 
 @app.route('/products', methods=['GET', 'POST'])
 @login_required
 def products():
+    excel_products()
+
     form = FinderForm()
+    additional_form = AddProductsForm()
     product = None
 
     if form.validate_on_submit() and form.submit.data:
@@ -60,7 +100,28 @@ def products():
             if search in element.name:
                 product = element
 
-    return render_template("Products.html", form=form, product=product)
+    if additional_form.validate_on_submit() and additional_form.submit_2.data:
+        post('http://localhost:5000/api/product', json={'name': additional_form.name.data,
+                                                        'cost': additional_form.cost.data}).json()
+
+        log_writer('http://localhost:5000/api/product')
+
+        form = FinderForm()
+        additional_form = AddProductsForm()
+
+    return render_template("Products.html", form=form, additional_form=additional_form, product=product)
+
+
+@app.route('/products_delete/<int:id_product>', methods=['GET', 'POST'])
+@login_required
+def product_delete(id_product):
+    """:param id_product product, that will be deleted
+       :return redirects to main product page"""
+    delete(f'http://localhost:5000/api/product/{id_product}').json()
+
+    log_writer(f'http://localhost:5000/api/product/{id_product}')
+
+    return redirect('/products')
 
 
 @app.route('/recipes_delete/<int:id_recipe>', methods=['GET', 'POST'])
@@ -123,7 +184,25 @@ def recipes():
         for element in results:
             if search in element.name:
                 recipe = element
-        return render_template("Recipes.html", form=form, add_form=add_form, recipe=recipe)
+
+        products_names = []
+
+        prod = recipe.products.split(', ')
+        recipe_cost = 0
+        for element in prod:
+            now = db_sess.query(Products).get(int(element))
+            if now is not None:
+                recipe_cost += now.cost
+                products_names.append(now.name)
+        recipe.cost = recipe_cost
+        db_sess.commit()
+
+        return render_template("Recipes.html",
+                               form=form,
+                               add_form=add_form,
+                               recipe=recipe,
+                               products_names=products_names,
+                               len_products=len(products_names))
 
     if add_form.validate_on_submit() and add_form.submit_2.data:
         if 'file' in request.files:
@@ -205,3 +284,4 @@ def logout():
 
 if __name__ == '__main__':
     main()
+    excel_products()

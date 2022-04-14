@@ -1,6 +1,6 @@
 from flask_login import UserMixin
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, SubmitField, EmailField, IntegerField
+from wtforms import PasswordField, StringField, SubmitField, EmailField
 from wtforms.validators import DataRequired
 
 
