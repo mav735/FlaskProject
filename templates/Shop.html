@@ -3,23 +3,23 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="Easy to use">
+    <meta name="keywords" content="">
     <meta name="description" content="">
     <meta name="page_type" content="np-template-header-footer-from-plugin">
-    <title>Main page</title>
+    <title>Shop</title>
     <link rel="stylesheet" href="../static/css/page.css" media="screen">
-    <link rel="stylesheet" href="../static/css/Index.css" media="screen">
+    <link rel="stylesheet" href="../static/css/Shop.css" media="screen">
     <script class="u-script" type="text/javascript" src="../static/js/jquery.js" defer=""></script>
     <script class="u-script" type="text/javascript" src="../static/js/all.js" defer=""></script>
     <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
-    <link id="u-page-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
+    <link id="u-page-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,200i,300,300i,400,400i,600,600i,700,700i,900,900i">
 
     <meta name="theme-color" content="#478ac9">
-    <meta property="og:title" content="Main page">
+    <meta property="og:title" content="Shop">
     <meta property="og:description" content="">
     <meta property="og:type" content="website">
   </head>
-  <body data-home-page="/" data-home-page-title="Main page" class="u-body u-xl-mode"><header class="u-black u-clearfix u-header u-sticky u-sticky-183f u-header" id="sec-a942"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+  <body class="u-body u-xl-mode"><header class="u-black u-clearfix u-header u-sticky u-sticky-183f u-header" id="sec-a942"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
         <nav class="u-menu u-menu-dropdown u-offcanvas u-menu-1">
           <div class="menu-collapse" style="font-size: 1rem; letter-spacing: 0px;">
             <a class="u-button-style u-custom-left-right-menu-spacing u-custom-padding-bottom u-custom-top-bottom-menu-spacing u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="#">
@@ -30,7 +30,6 @@
           </div>
           <div class="u-custom-menu u-nav-container">
             <ul class="u-nav u-unstyled u-nav-1">
-                <li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="/logout" style="padding: 10px 20px;">{{ current_user.login }}</a></li>
                 <li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="/" style="padding: 10px 20px;">Main page</a></li>
                 <li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="/recipes" style="padding: 10px 20px;">Recipes</a></li>
                 <li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="/products" style="padding: 10px 20px;">Products</a></li>
@@ -52,14 +51,40 @@
         <div class="u-clearfix u-custom-html u-custom-html-1">{% if current_user.is_authenticated %} <a href="/logout">{{ current_user.name }}</a> {% endif %}
         </div>
       </div></header>
-    <section class="u-align-left u-clearfix u-image u-shading u-section-1" src="" data-image-width="1680" data-image-height="900" id="sec-01ac">
+    <section class="u-align-center u-clearfix u-gradient u-section-1" id="carousel_cedf">
       <div class="u-clearfix u-sheet u-sheet-1">
-        <h1 class="u-text u-title u-text-1">Easy to use</h1>
-        <p class="u-custom-font u-font-open-sans u-large-text u-text u-text-variant u-text-2">Search for recipes by choosing a dish category, its subcategory. And in additional filters, you can search for the right (or unnecessary) ingredient.</p>
-        <a href="/login" class="u-border-none u-btn u-button-style u-palette-4-dark-2 u-btn-1">Login<br>
-        </a>
-        <a href="/register" class="u-btn u-button-style u-palette-2-base u-btn-2">Registration<br>
-        </a>
+        <h2 class="u-custom-font u-font-source-sans-pro u-text u-text-palette-4-light-3 u-text-1" data-animation-name="customAnimationIn" data-animation-duration="1000" data-animation-direction="">Your recipes </h2>
+        <div class="u-expanded-width u-table u-table-responsive u-table-1">
+          <table class="u-table-entity">
+            <colgroup>
+              <col width="25%">
+              <col width="25%">
+              <col width="25%">
+              <col width="25%">
+            </colgroup>
+            <thead class="u-palette-5-dark-3 u-table-header u-table-header-1">
+              <tr style="height: 70px;">
+                <th class="u-border-2 u-border-no-left u-border-no-right u-border-no-top u-border-palette-5-dark-1 u-table-cell u-table-cell-1">RECIPE NAME</th>
+                <th class="u-border-2 u-border-no-left u-border-no-right u-border-no-top u-border-palette-5-dark-1 u-table-cell u-table-cell-2">AMOUNT</th>
+                <th class="u-border-2 u-border-no-left u-border-no-right u-border-no-top u-border-palette-5-dark-1 u-table-cell u-table-cell-3">COST</th>
+                <th class="u-border-2 u-border-no-left u-border-no-right u-border-no-top u-border-palette-5-dark-1 u-table-cell u-table-cell-4">CALORIES</th>
+              </tr>
+            </thead>
+            <tbody class="u-black u-table-body u-table-body-1">
+              {% for element in recipes_data.keys() %}
+                  <tr style="height: 66px;">
+
+                      <td class="u-border-1 u-border-palette-5-dark-1 u-table-cell u-table-cell-5">{{recipes_data[element][0]}}</td>
+                      <td class="u-border-1 u-border-palette-5-dark-1 u-table-cell u-table-cell-6">{{recipes_data[element][1]}}</td>
+                      <td class="u-border-1 u-border-palette-5-dark-1 u-table-cell u-table-cell-7">{{recipes_data[element][2]}}</td>
+                      <td class="u-border-1 u-border-palette-5-dark-1 u-table-cell u-table-cell-8">{{recipes_data[element][3]}}</td>
+
+                  </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <a href="../static/Results.xlsx" class="u-border-3 u-border-black u-btn u-btn-round u-button-style u-hover-palette-2-base u-palette-2-dark-3 u-radius-22 u-text-body-alt-color u-text-hover-white u-btn-1" data-animation-name="flipIn" data-animation-duration="1750" data-animation-direction="X" download>Download products list</a>
       </div>
     </section>
   </body>

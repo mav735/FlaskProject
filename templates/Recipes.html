@@ -101,6 +101,7 @@
                       </p>
                       {% if current_user.is_authenticated and current_user == recipe.user %}
                       <div>
+                        <a style="border-right: 2px;" href="/add_to_favourite/{{ recipe.id }}" class="btn btn-success"> Add to shop list </a>
                         <a style="border-right: 2px;" href="/recipes_edit/{{ recipe.id }}" class="btn btn-warning"> Edit </a>
                         <a style="border-right: 2px;" href="/recipes_delete/{{ recipe.id }}" class="btn btn-danger"> Delete </a>
                       </div>

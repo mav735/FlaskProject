@@ -83,6 +83,72 @@ def product_edit(id_product):
     return render_template("Products_edit.html", form=edit_form)
 
 
+@app.route('/add_to_favourite/<int:id_recipe>', methods=['GET', 'POST'])
+@login_required
+def add_favourite(id_recipe):
+    db_sess = db_session.create_session()
+    results = db_sess.query(User).get(current_user.id)
+    if results.favourite_recipes_ids is not None:
+        recipes_data = list(filter(lambda x: x != '', results.favourite_recipes_ids.split(', ')))
+        recipes_data.append(str(id_recipe))
+        results.favourite_recipes_ids = ', '.join(recipes_data)
+    else:
+        results.favourite_recipes_ids = f'{id_recipe}, '
+    db_sess.commit()
+    return redirect('/recipes')
+
+
+@app.route('/shop')
+@login_required
+def shop():
+    db_sess = db_session.create_session()
+    results = db_sess.query(User).get(current_user.id)
+    products_data = []
+    if results.favourite_recipes_ids is not None:
+        recipes_data = list(filter(lambda x: x != '', results.favourite_recipes_ids.split(', ')))
+    recipes_dict = {}
+    for element in recipes_data:
+        if element in recipes_dict.keys():
+            recipes_dict[element][0] += 1
+        else:
+            recipes_dict[element] = [1]
+
+    for element in recipes_dict.keys():
+        results = db_sess.query(Recipes).get(int(element))
+
+        for pr in list(map(int, results.products.split(', '))):
+            products_data.append(pr)
+
+        recipes_dict[element].append(results.cost * recipes_dict[element][0])
+        recipes_dict[element].append(results.caloric_content * recipes_dict[element][0])
+        recipes_dict[element].insert(0, results.name)
+
+    result_products_dict = {'Id': [], 'Name': [], 'Amount': [], 'Cost': []}
+
+    for element in products_data:
+        db_sess = db_session.create_session()
+        results = db_sess.query(Products).get(element)
+        if results is not None:
+            if results.id not in result_products_dict['Id']:
+                result_products_dict['Id'].append(results.id)
+                result_products_dict['Name'].append(results.name)
+                counter = 0
+                for part in products_data:
+                    if part == results.id:
+                        counter += 1
+                result_products_dict['Amount'].append(counter)
+                result_products_dict['Cost'].append(counter * results.cost)
+
+    result_products_dict.pop('Id')
+    result_products_dict['Name'].append('Total:')
+    result_products_dict['Amount'].append(sum(result_products_dict['Amount']))
+    result_products_dict['Cost'].append(str(sum(result_products_dict['Cost'])) + ' Rubles')
+    form = pandas.DataFrame(result_products_dict)
+    form.to_excel('static/Results.xlsx')
+
+    return render_template('Shop.html', recipes_data=recipes_dict)
+
+
 @app.route('/products', methods=['GET', 'POST'])
 @login_required
 def products():
@@ -228,7 +294,12 @@ def recipes():
 
 @app.route("/")
 def work_log():
-    return render_template("index.html", current_user=current_user)
+    try:
+        db_sess = db_session.create_session()
+        results = db_sess.query(User).get(current_user.id)
+    except AttributeError:
+        results = None
+    return render_template("index.html", current_user=results)
 
 
 @app.route('/register', methods=['GET', 'POST'])
