@@ -98,6 +98,16 @@ def add_favourite(id_recipe):
     return redirect('/recipes')
 
 
+@app.route('/clear_favourite')
+@login_required
+def clear_products():
+    db_sess = db_session.create_session()
+    results = db_sess.query(User).get(current_user.id)
+    results.favourite_recipes_ids = ''
+    db_sess.commit()
+    return redirect('/recipes')
+
+
 @app.route('/shop')
 @login_required
 def shop():
