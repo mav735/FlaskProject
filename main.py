@@ -114,47 +114,60 @@ def shop():
     db_sess = db_session.create_session()
     results = db_sess.query(User).get(current_user.id)
     products_data = []
+    recipes_dict = {}
     if results.favourite_recipes_ids is not None:
         recipes_data = list(filter(lambda x: x != '', results.favourite_recipes_ids.split(', ')))
-    recipes_dict = {}
-    for element in recipes_data:
-        if element in recipes_dict.keys():
-            recipes_dict[element][0] += 1
-        else:
-            recipes_dict[element] = [1]
+        for element in recipes_data:
+            if element in recipes_dict.keys():
+                recipes_dict[element][0] += 1
+            else:
+                recipes_dict[element] = [1]
 
-    for element in recipes_dict.keys():
-        results = db_sess.query(Recipes).get(int(element))
+        for element in recipes_dict.keys():
+            results = db_sess.query(Recipes).get(int(element))
+            if results is not None:
+                for pr in list(map(int, results.products.split(', '))):
+                    products_data.append(pr)
 
-        for pr in list(map(int, results.products.split(', '))):
-            products_data.append(pr)
+                recipes_dict[element].append(results.cost * recipes_dict[element][0])
+                recipes_dict[element].append(results.caloric_content * recipes_dict[element][0])
+                recipes_dict[element].insert(0, results.name)
+            else:
+                recipes_data.pop(recipes_data.index(element))
+                user = db_sess.query(User).get(current_user.id)
+                user.favourite_recipes_ids = ', '.join(recipes_data)
+                db_sess.commit()
 
-        recipes_dict[element].append(results.cost * recipes_dict[element][0])
-        recipes_dict[element].append(results.caloric_content * recipes_dict[element][0])
-        recipes_dict[element].insert(0, results.name)
+        poped = []
+        for element in recipes_dict.keys():
+            if len(recipes_dict[element]) < 3:
+                poped.append(element)
 
-    result_products_dict = {'Id': [], 'Name': [], 'Amount': [], 'Cost': []}
+        for element in poped:
+            recipes_dict.pop(element)
 
-    for element in products_data:
-        db_sess = db_session.create_session()
-        results = db_sess.query(Products).get(element)
-        if results is not None:
-            if results.id not in result_products_dict['Id']:
-                result_products_dict['Id'].append(results.id)
-                result_products_dict['Name'].append(results.name)
-                counter = 0
-                for part in products_data:
-                    if part == results.id:
-                        counter += 1
-                result_products_dict['Amount'].append(counter)
-                result_products_dict['Cost'].append(counter * results.cost)
+        result_products_dict = {'Id': [], 'Name': [], 'Amount': [], 'Cost': []}
 
-    result_products_dict.pop('Id')
-    result_products_dict['Name'].append('Total:')
-    result_products_dict['Amount'].append(sum(result_products_dict['Amount']))
-    result_products_dict['Cost'].append(str(sum(result_products_dict['Cost'])) + ' Rubles')
-    form = pandas.DataFrame(result_products_dict)
-    form.to_excel('static/Results.xlsx')
+        for element in products_data:
+            db_sess = db_session.create_session()
+            results = db_sess.query(Products).get(element)
+            if results is not None:
+                if results.id not in result_products_dict['Id']:
+                    result_products_dict['Id'].append(results.id)
+                    result_products_dict['Name'].append(results.name)
+                    counter = 0
+                    for part in products_data:
+                        if part == results.id:
+                            counter += 1
+                    result_products_dict['Amount'].append(counter)
+                    result_products_dict['Cost'].append(counter * results.cost)
+
+        result_products_dict.pop('Id')
+        result_products_dict['Name'].append('Total:')
+        result_products_dict['Amount'].append(sum(result_products_dict['Amount']))
+        result_products_dict['Cost'].append(str(sum(result_products_dict['Cost'])) + ' Rubles')
+        form = pandas.DataFrame(result_products_dict)
+        form.to_excel('static/Results.xlsx')
 
     return render_template('Shop.html', recipes_data=recipes_dict)
 
@@ -261,24 +274,25 @@ def recipes():
             if search in element.name:
                 recipe = element
 
-        products_names = []
+        if recipe is not None:
+            products_names = []
 
-        prod = recipe.products.split(', ')
-        recipe_cost = 0
-        for element in prod:
-            now = db_sess.query(Products).get(int(element))
-            if now is not None:
-                recipe_cost += now.cost
-                products_names.append(now.name)
-        recipe.cost = recipe_cost
-        db_sess.commit()
+            prod = recipe.products.split(', ')
+            recipe_cost = 0
+            for element in prod:
+                now = db_sess.query(Products).get(int(element))
+                if now is not None:
+                    recipe_cost += now.cost
+                    products_names.append(now.name)
+            recipe.cost = recipe_cost
+            db_sess.commit()
 
-        return render_template("Recipes.html",
-                               form=form,
-                               add_form=add_form,
-                               recipe=recipe,
-                               products_names=products_names,
-                               len_products=len(products_names))
+            return render_template("Recipes.html",
+                                   form=form,
+                                   add_form=add_form,
+                                   recipe=recipe,
+                                   products_names=products_names,
+                                   len_products=len(products_names))
 
     if add_form.validate_on_submit() and add_form.submit_2.data:
         if 'file' in request.files:
