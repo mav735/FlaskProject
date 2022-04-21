@@ -1,3 +1,5 @@
+import os
+
 import pandas
 from flask import Flask, request
 from flask import render_template, redirect
@@ -59,7 +61,9 @@ def main():
 
     api.add_resource(products_resources.ProductsResource, '/api/product/<int:product_id>')
     api.add_resource(products_resources.ProductsListResource, '/api/product')
-    app.run()
+
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
 
 @app.route("/products_edit/<int:id_product>", methods=['GET', "POST"])
