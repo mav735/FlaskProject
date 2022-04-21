@@ -33,8 +33,6 @@ MarkupSafe==2.0.1
 matplotlib==3.5.0
 mccabe==0.6.1
 mpmath==1.2.1
-numba==0.54.1
-numpy==1.20.3
 packaging==21.3
 pandas==1.3.4
 platformdirs==2.4.0
@@ -55,7 +53,6 @@ schedule==1.1.0
 scipy==1.7.3
 seaborn==0.11.2
 setuptools-scm==6.3.2
-six==1.15.0
 soupsieve==2.2.1
 SQLAlchemy==1.4.31
 SQLAlchemy-serializer==1.4.1
